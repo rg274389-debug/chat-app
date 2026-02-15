@@ -12,24 +12,26 @@ height:100vh;
 display:flex;
 justify-content:center;
 align-items:center;
-background:linear-gradient(135deg,#020617,#0f172a);
+background:#0f172a;
 font-family:sans-serif;
 color:white;
 }
 
 .card{
 width:90%;
-max-width:420px;
+max-width:400px;
 background:#111827;
-padding:20px;
-border-radius:20px;
+padding:25px;
+border-radius:15px;
+box-shadow:0 0 20px rgba(0,0,0,.5);
+text-align:center;
 }
 
 #chat{
-height:300px;
+height:250px;
 overflow:auto;
 background:#020617;
-border-radius:15px;
+border-radius:10px;
 padding:10px;
 margin:15px 0;
 }
@@ -43,7 +45,7 @@ input{
 flex:1;
 padding:12px;
 border:none;
-border-radius:10px;
+border-radius:8px;
 background:#1e293b;
 color:white;
 }
@@ -51,16 +53,14 @@ color:white;
 button{
 padding:12px;
 border:none;
-border-radius:10px;
-background:#06b6d4;
+border-radius:8px;
+background:#22c55e;
 color:white;
 font-weight:bold;
 cursor:pointer;
 }
 
-.report{
-background:red;
-}
+.report{background:red}
 </style>
 </head>
 
@@ -68,7 +68,34 @@ background:red;
 
 <div class="card">
 
-<!-- LOGIN SCREEN -->
 <div id="login">
 <h2>Enter Username</h2>
-<input id="nameI
+<input id="nameInput" placeholder="Your name">
+<br><br>
+<button onclick="join()">Start Chat</button>
+</div>
+
+<div id="chatUI" style="display:none">
+
+<h3 id="count">Online Users: 0</h3>
+<h2 id="status">Finding Stranger...</h2>
+
+<div id="chat"></div>
+
+<div class="inputArea">
+<input id="msg">
+<button onclick="send()">Send</button>
+<button onclick="nextUser()">Next</button>
+<button class="report" onclick="reportUser()">Report</button>
+</div>
+
+</div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="app.js"></script>
+<audio id="matchSound" src="match.mp3"></audio>
+
+</body>
+</html>
