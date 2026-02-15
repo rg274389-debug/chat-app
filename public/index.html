@@ -2,13 +2,21 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Modern Chat</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat</title>
 <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <div class="card">
+
+<div id="login">
+<h2>Enter Username</h2>
+<input id="nameInput" placeholder="Your name">
+<button onclick="join()">Start Chat</button>
+</div>
+
+<div id="chatUI" style="display:none;">
 
 <h3 id="count">Online Users: 0</h3>
 <h2 id="status">Finding Stranger...</h2>
@@ -16,9 +24,11 @@
 <div id="chat"></div>
 
 <div class="inputArea">
-  <input id="msg" placeholder="Type message...">
-  <button onclick="send()">Send</button>
-  <button onclick="nextUser()">Next</button>
+<input id="msg" placeholder="Type message...">
+<button onclick="send()">Send</button>
+<button onclick="nextUser()">Next</button>
+</div>
+
 </div>
 
 </div>

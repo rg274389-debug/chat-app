@@ -16,6 +16,12 @@ io.on("connection", socket => {
   users++;
   io.emit("count", users);
 
+  // USERNAME
+  socket.on("join", name=>{
+    socket.username = name;
+  });
+
+  // MATCHING
   if(waiting){
     socket.partner = waiting;
     waiting.partner = socket;
@@ -29,12 +35,14 @@ io.on("connection", socket => {
     waiting = socket;
   }
 
-  socket.on("message", msg=>{
+  // MESSAGE
+  socket.on("message", data=>{
     if(socket.partner){
-      socket.partner.emit("message", msg);
+      socket.partner.emit("message", data);
     }
   });
 
+  // NEXT USER
   socket.on("next", ()=>{
     if(socket.partner){
       socket.partner.emit("partner-left");
@@ -44,11 +52,14 @@ io.on("connection", socket => {
     waiting = socket;
   });
 
+  // DISCONNECT
   socket.on("disconnect", ()=>{
+
     users--;
     io.emit("count", users);
 
-    if(waiting === socket) waiting = null;
+    if(waiting === socket)
+      waiting = null;
 
     if(socket.partner){
       socket.partner.emit("partner-left");
@@ -58,4 +69,7 @@ io.on("connection", socket => {
 
 });
 
-server.listen(3000, ()=>console.log("Server running"));
+
+// RENDER PORT SUPPORT
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, ()=>console.log("Server running"));
