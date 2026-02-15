@@ -1,71 +1,66 @@
-const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
+const express=require("express");
+const http=require("http");
+const {Server}=require("socket.io");
 
-const app = express();
-const server = http.createServer(app);
+const app=express();
+const server=http.createServer(app);
 
-// SOCKET SERVER
-const io = new Server(server,{
-  cors:{ origin:"*" }
-});
+const io=new Server(server,{cors:{origin:"*"}});
 
-// SERVE FRONTEND FILES
 app.use(express.static("public"));
 
-let waitingUser = null;
+let waiting=null;
 
-io.on("connection", socket => {
+io.on("connection",socket=>{
 
-  console.log("User connected");
+ if(waiting){
+  socket.partner=waiting;
+  waiting.partner=socket;
 
-  // MATCH USERS
-  if(waitingUser){
-    socket.partner = waitingUser;
-    waitingUser.partner = socket;
+  socket.emit("matched",true);
+  waiting.emit("matched",false);
 
-    socket.emit("matched", true);
-    waitingUser.emit("matched", false);
+  waiting=null;
+ }
+ else{
+  waiting=socket;
+ }
 
-    waitingUser = null;
+ // SIGNAL RELAY (VIDEO)
+ socket.on("signal",data=>{
+  if(socket.partner){
+   socket.partner.emit("signal",data);
   }
-  else{
-    waitingUser = socket;
+ });
+
+ // TEXT MESSAGE
+ socket.on("msg",msg=>{
+  if(socket.partner){
+   socket.partner.emit("msg",msg);
   }
+ });
 
-  // VIDEO SIGNAL RELAY
-  socket.on("signal", data => {
-    if(socket.partner){
-      socket.partner.emit("signal", data);
-    }
-  });
+ // NEXT USER
+ socket.on("next",()=>{
+  if(socket.partner){
+   socket.partner.emit("left");
+   socket.partner.partner=null;
+  }
+  socket.partner=null;
+  waiting=socket;
+ });
 
-  // NEXT STRANGER
-  socket.on("next", ()=>{
-    if(socket.partner){
-      socket.partner.emit("partner-left");
-      socket.partner.partner = null;
-    }
-    socket.partner = null;
-    waitingUser = socket;
-  });
+ // DISCONNECT
+ socket.on("disconnect",()=>{
+  if(waiting===socket) waiting=null;
 
-  // USER DISCONNECT
-  socket.on("disconnect", ()=>{
-
-    console.log("User disconnected");
-
-    if(waitingUser === socket)
-      waitingUser = null;
-
-    if(socket.partner){
-      socket.partner.emit("partner-left");
-      socket.partner.partner = null;
-    }
-  });
+  if(socket.partner){
+   socket.partner.emit("left");
+   socket.partner.partner=null;
+  }
+ });
 
 });
 
-// RENDER PORT SUPPORT
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, ()=> console.log("Server running on port " + PORT));
+const PORT=process.env.PORT||3000;
+server.listen(PORT,()=>console.log("Server running"));
