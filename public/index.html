@@ -7,65 +7,59 @@
 
 <style>
 body{
-  margin:0;
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:linear-gradient(135deg,#020617,#0f172a);
-  font-family:Segoe UI;
-  color:white;
+margin:0;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(135deg,#020617,#0f172a);
+font-family:sans-serif;
+color:white;
 }
 
 .card{
-  width:90%;
-  max-width:420px;
-  background:#111827;
-  padding:20px;
-  border-radius:20px;
-  box-shadow:0 0 50px rgba(0,0,0,.6);
+width:90%;
+max-width:420px;
+background:#111827;
+padding:20px;
+border-radius:20px;
 }
 
-h2,h3{text-align:center;}
-
 #chat{
-  height:300px;
-  overflow:auto;
-  background:#020617;
-  border-radius:15px;
-  padding:10px;
-  margin:15px 0;
+height:300px;
+overflow:auto;
+background:#020617;
+border-radius:15px;
+padding:10px;
+margin:15px 0;
 }
 
 .inputArea{
-  display:flex;
-  gap:8px;
+display:flex;
+gap:8px;
 }
 
 input{
-  flex:1;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  background:#1e293b;
-  color:white;
-  outline:none;
+flex:1;
+padding:12px;
+border:none;
+border-radius:10px;
+background:#1e293b;
+color:white;
 }
 
 button{
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  background:linear-gradient(45deg,#22c55e,#06b6d4);
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
+padding:12px;
+border:none;
+border-radius:10px;
+background:#06b6d4;
+color:white;
+font-weight:bold;
+cursor:pointer;
 }
 
-button:hover{opacity:.85;}
-
 .report{
-  background:red;
+background:red;
 }
 </style>
 </head>
@@ -74,12 +68,7 @@ button:hover{opacity:.85;}
 
 <div class="card">
 
-<!-- LOGIN -->
+<!-- LOGIN SCREEN -->
 <div id="login">
 <h2>Enter Username</h2>
-<input id="nameInput" placeholder="Your name">
-<button onclick="join()">Start Chat</button>
-</div>
-
-<!-- CHAT UI -->
-<div
+<input id="nameI

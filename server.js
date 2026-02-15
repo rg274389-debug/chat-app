@@ -4,21 +4,18 @@ const { Server } = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server,{ cors:{origin:"*"} });
+const io = new Server(server,{cors:{origin:"*"}});
 
 app.use(express.static("public"));
 
 let waitingUser=null;
 let users=0;
-
-// banned IP list
-let banned = new Set();
+let banned=new Set();
 
 io.on("connection",socket=>{
 
   const ip = socket.handshake.address;
 
-  // BLOCK BANNED USER
   if(banned.has(ip)){
     socket.emit("banned");
     socket.disconnect();
@@ -41,8 +38,7 @@ io.on("connection",socket=>{
     waitingUser.emit("matched");
 
     waitingUser=null;
-  }
-  else{
+  }else{
     waitingUser=socket;
   }
 
@@ -60,13 +56,11 @@ io.on("connection",socket=>{
     }
   });
 
-  // REPORT USER
+  // REPORT
   socket.on("report",()=>{
     if(socket.partner){
-      let partnerIP = socket.partner.handshake.address;
-
+      let partnerIP=socket.partner.handshake.address;
       banned.add(partnerIP);
-
       socket.partner.emit("banned");
       socket.partner.disconnect();
     }

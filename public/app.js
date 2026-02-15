@@ -1,7 +1,6 @@
 const socket = io();
 let username="";
 
-// JOIN CHAT
 function join(){
  username=document.getElementById("nameInput").value.trim();
  if(username==="") return alert("Enter name");
@@ -12,77 +11,64 @@ function join(){
  socket.emit("join",username);
 }
 
-// ONLINE USERS COUNT
 socket.on("count",num=>{
  document.getElementById("count").innerText="Online Users: "+num;
 });
 
-// MATCHED
 socket.on("matched",()=>{
  document.getElementById("status").innerText="Connected";
-
- let sound=document.getElementById("matchSound");
- if(sound) sound.play().catch(()=>{});
+ let s=document.getElementById("matchSound");
+ if(s) s.play().catch(()=>{});
 });
 
-// RECEIVE MESSAGE
 socket.on("message",data=>{
- addMessage(data.name+": "+data.msg);
+ add(data.name+": "+data.msg);
 });
 
-// TYPING INDICATOR
 socket.on("typing",()=>{
- document.getElementById("status").innerText="Stranger is typing...";
-
- setTimeout(()=>{
-  document.getElementById("status").innerText="Connected";
- },1000);
+ document.getElementById("status").innerText="Stranger typing...";
+ setTimeout(()=>{document.getElementById("status").innerText="Connected"},1000);
 });
 
-// STRANGER LEFT
 socket.on("partner-left",()=>{
  document.getElementById("status").innerText="Finding Stranger...";
  document.getElementById("chat").innerHTML="";
 });
 
-// BANNED USER
 socket.on("banned",()=>{
- alert("You have been banned from chat.");
+ alert("You are banned");
  location.reload();
 });
 
-// SEND MESSAGE
 function send(){
  let input=document.getElementById("msg");
-
- if(input.value.trim()==="") return;
+ if(input.value==="") return;
 
  socket.emit("message",{name:username,msg:input.value});
- addMessage("You: "+input.value);
-
+ add("You: "+input.value);
  input.value="";
 }
 
-// NEXT USER
 function nextUser(){
  socket.emit("next");
  document.getElementById("chat").innerHTML="";
  document.getElementById("status").innerText="Finding Stranger...";
 }
 
-// REPORT USER
 function reportUser(){
  if(confirm("Report this user?")){
   socket.emit("report");
  }
 }
 
-// ADD MESSAGE
-function addMessage(text){
- let div=document.createElement("div");
- div.innerText=text;
- document.getElementById("chat").appendChild(div);
+function add(t){
+ let d=document.createElement("div");
+ d.innerText=t;
+ document.getElementById("chat").appendChild(d);
 }
 
-// DETECT TYPING
 document.addEventListener("input",e=>{
+ if(e.target.id==="msg"){
+  socket.emit("typing");
+ }
+});
