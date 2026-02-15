@@ -1,74 +1,82 @@
-const socket = io();
-let username="";
+=const socket = io();
 
-function join(){
- username=document.getElementById("nameInput").value.trim();
- if(username==="") return alert("Enter name");
+let localStream;
+let peer;
 
- document.getElementById("login").style.display="none";
- document.getElementById("chatUI").style.display="block";
+// STUN SERVER (needed for internet video connection)
+const config = {
+  iceServers: [
+    { urls: "stun:stun.l.google.com:19302" }
+  ]
+};
 
- socket.emit("join",username);
+// GET CAMERA + MIC
+navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+.then(stream => {
+  localStream = stream;
+  document.getElementById("localVideo").srcObject = stream;
+})
+.catch(err => {
+  alert("Camera access denied");
+});
+
+// MATCHED WITH USER
+socket.on("matched", async caller => {
+
+  document.getElementById("status").innerText = "Connected";
+
+  peer = new RTCPeerConnection(config);
+
+  // SEND CAMERA STREAM
+  localStream.getTracks().forEach(track => {
+    peer.addTrack(track, localStream);
+  });
+
+  // RECEIVE STRANGER VIDEO
+  peer.ontrack = e => {
+    document.getElementById("remoteVideo").srcObject = e.streams[0];
+  };
+
+  // SEND ICE CANDIDATES
+  peer.onicecandidate = e => {
+    if (e.candidate) {
+      socket.emit("signal", { candidate: e.candidate });
+    }
+  };
+
+  // CREATE OFFER (caller only)
+  if (caller) {
+    let offer = await peer.createOffer();
+    await peer.setLocalDescription(offer);
+    socket.emit("signal", { offer });
+  }
+
+});
+
+// SIGNAL EXCHANGE
+socket.on("signal", async data => {
+
+  if (data.offer) {
+    await peer.setRemoteDescription(data.offer);
+    let ans = await peer.createAnswer();
+    await peer.setLocalDescription(ans);
+    socket.emit("signal", { answer: ans });
+  }
+
+  if (data.answer) {
+    await peer.setRemoteDescription(data.answer);
+  }
+
+  if (data.candidate) {
+    try {
+      await peer.addIceCandidate(data.candidate);
+    } catch {}
+  }
+
+});
+
+// NEXT STRANGER
+function nextUser() {
+  location.reload();
 }
 
-socket.on("count",num=>{
- document.getElementById("count").innerText="Online Users: "+num;
-});
-
-socket.on("matched",()=>{
- document.getElementById("status").innerText="Connected";
- let s=document.getElementById("matchSound");
- if(s) s.play().catch(()=>{});
-});
-
-socket.on("message",data=>{
- add(data.name+": "+data.msg);
-});
-
-socket.on("typing",()=>{
- document.getElementById("status").innerText="Stranger typing...";
- setTimeout(()=>{document.getElementById("status").innerText="Connected"},1000);
-});
-
-socket.on("partner-left",()=>{
- document.getElementById("status").innerText="Finding Stranger...";
- document.getElementById("chat").innerHTML="";
-});
-
-socket.on("banned",()=>{
- alert("You are banned");
- location.reload();
-});
-
-function send(){
- let input=document.getElementById("msg");
- if(input.value==="") return;
-
- socket.emit("message",{name:username,msg:input.value});
- add("You: "+input.value);
- input.value="";
-}
-
-function nextUser(){
- socket.emit("next");
- document.getElementById("chat").innerHTML="";
- document.getElementById("status").innerText="Finding Stranger...";
-}
-
-function reportUser(){
- if(confirm("Report this user?")){
-  socket.emit("report");
- }
-}
-
-function add(t){
- let d=document.createElement("div");
- d.innerText=t;
- document.getElementById("chat").appendChild(d);
-}
-
-document.addEventListener("input",e=>{
- if(e.target.id==="msg"){
-  socket.emit("typing");
- }
-});
