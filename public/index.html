@@ -3,47 +3,83 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chat App</title>
-<link rel="stylesheet" href="style.css">
+<title>Live Chat</title>
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#020617,#0f172a);
+  font-family:Segoe UI;
+  color:white;
+}
+
+.card{
+  width:90%;
+  max-width:420px;
+  background:#111827;
+  padding:20px;
+  border-radius:20px;
+  box-shadow:0 0 50px rgba(0,0,0,.6);
+}
+
+h2,h3{text-align:center;}
+
+#chat{
+  height:300px;
+  overflow:auto;
+  background:#020617;
+  border-radius:15px;
+  padding:10px;
+  margin:15px 0;
+}
+
+.inputArea{
+  display:flex;
+  gap:8px;
+}
+
+input{
+  flex:1;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:#1e293b;
+  color:white;
+  outline:none;
+}
+
+button{
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(45deg,#22c55e,#06b6d4);
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{opacity:.85;}
+
+.report{
+  background:red;
+}
+</style>
 </head>
 
 <body>
 
 <div class="card">
 
-<!-- LOGIN SCREEN -->
+<!-- LOGIN -->
 <div id="login">
 <h2>Enter Username</h2>
 <input id="nameInput" placeholder="Your name">
 <button onclick="join()">Start Chat</button>
 </div>
 
-<!-- CHAT SCREEN -->
-<div id="chatUI" style="display:none;">
-
-<h3 id="count">Online Users: 0</h3>
-<h2 id="status">Finding Stranger...</h2>
-
-<div id="chat"></div>
-
-<div class="inputArea">
-<input id="msg" placeholder="Type message...">
-<button onclick="join()">Start Chat</button>
-<button onclick="send()">Send</button>
-<button onclick="nextUser()">Next</button>
-<button onclick="reportUser()" style="background:red;">Report</button>
-
-</div>
-
-</div>
-
-</div>
-
-<script src="/socket.io/socket.io.js"></script>
-<script src="app.js"></script>
-
-<!-- MATCH SOUND -->
-<audio id="matchSound" src="match.mp3"></audio>
-
-</body>
-</html>
+<!-- CHAT UI -->
+<div
