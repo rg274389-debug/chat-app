@@ -1,29 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Chat + Video</title>
+    <title>Omegle Clone</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { background: #000; color: #fff; font-family: Arial; text-align: center; }
+        video { width: 45%; height: 400px; background: #333; margin: 10px; }
+        button { padding: 10px 20px; background: #ff4757; color: white; border: none; margin: 10px; cursor: pointer; }
+    </style>
 </head>
-
-<body style="background:#111;color:white;text-align:center;font-family:sans-serif">
-
-<h2 id="status">Finding Stranger...</h2>
-
-<!-- VIDEO -->
-<video id="me" autoplay muted width="200"></video>
-<video id="user" autoplay width="200"></video>
-
-<br><br>
-
-<!-- CHAT -->
-<div id="chat" style="height:200px;overflow:auto;border:1px solid gray;margin:10px;padding:10px"></div>
-
-<input id="msg">
-<button onclick="send()">Send</button>
-<button onclick="next()">Next</button>
-
-<script src="/socket.io/socket.io.js"></script>
-<script src="app.js"></script>
-
+<body>
+    <h1>Random Video Chat</h1>
+    <div id="status">Click Start to find a match!</div>
+    <video id="localVideo" autoplay muted></video>
+    <video id="remoteVideo" autoplay></video>
+    <br>
+    <button id="startBtn" onclick="findMatch()">Start Matching</button>
+    <button id="nextBtn" onclick="nextMatch()" style="display:none;">Next</button>
+    
+    <script>
+        const socket = io();
+        let localStream, peerConnection;
+        let partnerId = null;
+        
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+            .then(stream => {
+                localStream = stream;
+                document.getElementById('localVideo').srcObject = stream;
+            });
+        
+        function findMatch() {
+            socket.emit('find-match');
+        }
+        
+        socket.on('waiting', () => {
+            document.getElementById('status').textContent = 'Waiting for match...';
+        });
+        
+        socket.on('matched', (partner) => {
+            partnerId = partner;
+            document.getElementById('status').textContent = 'Matched! Starting video...';
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'inline';
+            // WebRTC setup here (next step)
+        }
+    </script>
 </body>
 </html>

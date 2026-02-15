@@ -1,66 +1,36 @@
-const express=require("express");
-const http=require("http");
-const {Server}=require("socket.io");
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 
-const app=express();
-const server=http.createServer(app);
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: "*" } });
 
-const io=new Server(server,{cors:{origin:"*"}});
+app.use(express.static('public'));  // HTML/JS files ke liye
 
-app.use(express.static("public"));
+let waitingUsers = [];  // Simple queue for matching
 
-let waiting=null;
-
-io.on("connection",socket=>{
-
- if(waiting){
-  socket.partner=waiting;
-  waiting.partner=socket;
-
-  socket.emit("matched",true);
-  waiting.emit("matched",false);
-
-  waiting=null;
- }
- else{
-  waiting=socket;
- }
-
- // SIGNAL RELAY (VIDEO)
- socket.on("signal",data=>{
-  if(socket.partner){
-   socket.partner.emit("signal",data);
-  }
- });
-
- // TEXT MESSAGE
- socket.on("msg",msg=>{
-  if(socket.partner){
-   socket.partner.emit("msg",msg);
-  }
- });
-
- // NEXT USER
- socket.on("next",()=>{
-  if(socket.partner){
-   socket.partner.emit("left");
-   socket.partner.partner=null;
-  }
-  socket.partner=null;
-  waiting=socket;
- });
-
- // DISCONNECT
- socket.on("disconnect",()=>{
-  if(waiting===socket) waiting=null;
-
-  if(socket.partner){
-   socket.partner.emit("left");
-   socket.partner.partner=null;
-  }
- });
-
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.id);
+  
+  socket.on('find-match', () => {
+    if (waitingUsers.length > 0) {
+      // Match found!
+      const partner = waitingUsers.pop();
+      socket.join('room-' + partner);
+      partner.join('room-' + socket.id);
+      io.to('room-' + partner).emit('matched', socket.id);
+      io.to('room-' + socket.id).emit('matched', partner);
+    } else {
+      waitingUsers.push(socket.id);
+      socket.emit('waiting');
+    }
+  });
+  
+  socket.on('disconnect', () => {
+    // Remove from queue
+    waitingUsers = waitingUsers.filter(id => id !== socket.id);
+  });
 });
 
-const PORT=process.env.PORT||3000;
-server.listen(PORT,()=>console.log("Server running"));
+server.listen(3000, () => console.log('Server running on http://localhost:3000'));
