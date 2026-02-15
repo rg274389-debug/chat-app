@@ -3,19 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chat</title>
+<title>Chat App</title>
 <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <div class="card">
 
+<!-- LOGIN SCREEN -->
 <div id="login">
 <h2>Enter Username</h2>
 <input id="nameInput" placeholder="Your name">
 <button onclick="join()">Start Chat</button>
 </div>
 
+<!-- CHAT SCREEN -->
 <div id="chatUI" style="display:none;">
 
 <h3 id="count">Online Users: 0</h3>
@@ -27,6 +30,8 @@
 <input id="msg" placeholder="Type message...">
 <button onclick="send()">Send</button>
 <button onclick="nextUser()">Next</button>
+<button onclick="reportUser()" style="background:red;">Report</button>
+
 </div>
 
 </div>
@@ -35,6 +40,9 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="app.js"></script>
+
+<!-- MATCH SOUND -->
+<audio id="matchSound" src="match.mp3"></audio>
 
 </body>
 </html>
